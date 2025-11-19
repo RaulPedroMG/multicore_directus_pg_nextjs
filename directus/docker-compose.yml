@@ -1,0 +1,21 @@
+services:
+  directus:
+    build: .
+    ports:
+      - "8057:8055"
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+      - ./data:/directus/data
+    env_file: ./.env
+    networks:
+      - directus_network
+
+networks:
+  directus_network:
+    external: true
+
+volumes:
+  uploads:
+  extensions:
+  data:

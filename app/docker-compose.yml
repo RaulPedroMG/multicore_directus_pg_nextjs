@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs_app
+    ports:
+      - "3037:3000"
+    env_file: ./.env
+    restart: unless-stopped
+    networks:
+      - directus_network
+
+networks:
+  directus_network:
+    external: true
