@@ -93,3 +93,70 @@ Se ha configurado un sistema de permisos basado en políticas para los siguiente
 *   **Customer**: Puede ver productos/categorías y gestionar su propio perfil y pedidos.
 *   **Product Manager**: Puede gestionar completamente los productos y categorías.
 *   **Commerce Owner**: Hereda los permisos del `Product Manager` y puede ser extendido con permisos adicionales.
+
+## Despliegue en Dokploy
+
+Este proyecto puede ser desplegado en Dokploy siguiendo estos pasos:
+
+### Requisitos para despliegue
+
+* Una cuenta en Dokploy
+* CLI de Dokploy instalado y configurado
+* Tener los archivos de configuración necesarios
+
+### Configuración previa
+
+1. Copia el archivo `.env.production.example` a `.env.production`:
+   ```bash
+   cp .env.production.example .env.production
+   ```
+
+2. Edita `.env.production` con tus valores reales:
+   * Configura credenciales seguras para la base de datos
+   * Establece claves de encriptación para Directus
+   * Configura los dominios para tu aplicación
+
+### Ejecución del despliegue
+
+El proyecto incluye un script para automatizar el despliegue:
+
+```bash
+# Hacer ejecutable el script
+chmod +x deploy.sh
+
+# Desplegar en producción
+./deploy.sh production
+```
+
+El script realizará los siguientes pasos:
+1. Verificará que todos los requisitos estén cumplidos
+2. Preparará el entorno con las variables correctas
+3. Construirá los contenedores Docker
+4. Desplegará la aplicación en Dokploy
+5. Verificará que el despliegue se haya completado correctamente
+
+### Configuración manual en Dokploy
+
+Si prefieres realizar la configuración manualmente:
+
+1. Autentica la CLI de Dokploy:
+   ```bash
+   dokploy auth login
+   ```
+
+2. Despliega la aplicación usando el archivo dokploy.yml:
+   ```bash
+   dokploy deploy --env=production
+   ```
+
+3. Verifica el estado del despliegue:
+   ```bash
+   dokploy status
+   ```
+
+### Notas importantes
+
+* Asegúrate de tener suficientes recursos en tu cuenta Dokploy
+* Para entornos de prueba, puedes usar el comando `./deploy.sh staging`
+* Cada microservicio se desplegará con sus propios recursos conforme a lo definido en dokploy.yml
+* Los volúmenes persistentes garantizan que los datos se mantengan entre despliegues
