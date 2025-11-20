@@ -10,13 +10,9 @@ This document provides detailed instructions for deploying this multi-container 
 
 ## Configuration Files
 
-This repository uses the following structure for Dokploy deployment:
+This repository uses a unified Docker Compose configuration for Dokploy deployment:
 
-- `dokploy.config.json` - Configuration for Dokploy explaining how to use existing docker-compose.yml files
-- Individual `docker-compose.yml` files in each service directory:
-  - `database/docker-compose.yml`
-  - `directus/docker-compose.yml`
-  - `app/docker-compose.yml`
+- `docker-compose.yml` - Main configuration file that defines all services, networks, and volumes
 
 ## Step 1: Create a Compose Service in Dokploy
 
@@ -24,6 +20,7 @@ This repository uses the following structure for Dokploy deployment:
 2. Give it a meaningful name and description
 3. Connect it to this GitHub repository
 4. Specify the branch to deploy (typically `main`)
+5. Set the "Compose Path" field to `./docker-compose.yml`
 
 ## Step 2: Configure Environment Variables
 

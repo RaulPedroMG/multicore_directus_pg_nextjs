@@ -1,0 +1,87 @@
+# Unified docker-compose.yml for Dokploy deployment
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:17.6-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-directus_db}
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - directus_network
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-admin@example.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-pgadmin}
+    ports:
+      - "5057:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - directus_network
+
+  # Directus CMS
+  directus:
+    build: ./directus
+    container_name: directus
+    depends_on:
+      - postgres
+    environment:
+      - KEY=${DIRECTUS_KEY:-random_key}
+      - SECRET=${DIRECTUS_SECRET:-random_secret}
+      - ADMIN_EMAIL=${DIRECTUS_ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${DIRECTUS_ADMIN_PASSWORD:-directus}
+      - DB_CLIENT=pg
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_NAME:-directus_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - PUBLIC_URL=${DIRECTUS_PUBLIC_URL:-http://localhost:8057}
+    ports:
+      - "8057:8055"
+    volumes:
+      - ./directus/uploads:/directus/uploads
+      - ./directus/extensions:/directus/extensions
+      - ./directus/data:/directus/data
+    restart: unless-stopped
+    networks:
+      - directus_network
+
+  # Next.js Application
+  app:
+    build: ./app
+    container_name: nextjs_app
+    depends_on:
+      - directus
+    ports:
+      - "3037:3000"
+    environment:
+      - NEXT_PUBLIC_DIRECTUS_URL=${DIRECTUS_PUBLIC_URL:-http://localhost:8057}
+    restart: unless-stopped
+    networks:
+      - directus_network
+
+networks:
+  directus_network:
+    name: directus_network
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
